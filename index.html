@@ -327,6 +327,13 @@
       color: var(--incorrect);
     }
 
+    .feedback-explanation {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
     .actions {
       display: flex;
       justify-content: flex-end;
@@ -585,52 +592,62 @@
       {
         question: "Which planet is known as the Red Planet?",
         answers: ["Venus", "Mars", "Jupiter", "Mercury"],
-        correct: 1
+        correct: 1,
+        explanation: "Iron minerals in its soil give Mars its rusty red color."
       },
       {
         question: "What is the name of the galaxy we call home?",
         answers: ["Andromeda", "Whirlpool Galaxy", "Milky Way", "Sombrero Galaxy"],
-        correct: 2
+        correct: 2,
+        explanation: "Our solar system sits in one of the Milky Way’s spiral arms."
       },
       {
         question: "Which was the first human-made object to reach space?",
         answers: ["Sputnik 1", "V-2 rocket", "Apollo 11", "Voyager 1"],
-        correct: 1
+        correct: 1,
+        explanation: "A V-2 rocket crossed the commonly used 100 km boundary in 1944."
       },
       {
         question: "What is the largest planet in our solar system?",
         answers: ["Saturn", "Neptune", "Earth", "Jupiter"],
-        correct: 3
+        correct: 3,
+        explanation: "Jupiter is so large that more than 1,300 Earths could fit inside it."
       },
       {
         question: "What do astronauts wear to protect themselves outside a spacecraft?",
         answers: ["A flight suit", "A spacesuit", "A pressure helmet", "A thermal blanket"],
-        correct: 1
+        correct: 1,
+        explanation: "Spacesuits provide pressure, oxygen, and protection from extreme temperatures."
       },
       {
         question: "Which planet has the most prominent ring system?",
         answers: ["Uranus", "Saturn", "Neptune", "Jupiter"],
-        correct: 1
+        correct: 1,
+        explanation: "Saturn’s bright rings are made mostly of icy particles."
       },
       {
         question: "What is the closest star to Earth?",
         answers: ["Proxima Centauri", "Sirius", "The Sun", "Alpha Centauri A"],
-        correct: 2
+        correct: 2,
+        explanation: "The Sun is about 150 million kilometers from Earth."
       },
       {
         question: "What was the name of the first spacecraft to land humans on the Moon?",
         answers: ["Gemini 4", "Apollo 11", "Apollo 13", "Artemis I"],
-        correct: 1
+        correct: 1,
+        explanation: "Apollo 11’s lunar module Eagle landed on the Moon in July 1969."
       },
       {
         question: "Which planet is famous for its huge storm called the Great Red Spot?",
         answers: ["Mars", "Jupiter", "Saturn", "Venus"],
-        correct: 1
+        correct: 1,
+        explanation: "The Great Red Spot is a giant storm in Jupiter’s atmosphere."
       },
       {
         question: "About how long does sunlight take to reach Earth?",
         answers: ["8 seconds", "8 minutes", "8 hours", "8 days"],
-        correct: 1
+        correct: 1,
+        explanation: "Sunlight takes about 8 minutes and 20 seconds to travel here."
       }
     ];
 
@@ -702,6 +719,7 @@
 
       const item = questions[currentQuestion];
       const buttons = [...answersContainer.querySelectorAll(".answer")];
+      let feedbackMessage;
       buttons.forEach((button) => {
         button.disabled = true;
       });
@@ -710,14 +728,19 @@
         score += 1;
         scoreDisplay.textContent = String(score);
         buttons[selectedIndex].classList.add("is-correct");
-        feedback.textContent = "Correct! Stellar work.";
+        feedbackMessage = "Correct! Stellar work.";
         feedback.classList.add("is-correct");
       } else {
         buttons[selectedIndex].classList.add("is-wrong");
         buttons[item.correct].classList.add("is-correct");
-        feedback.textContent = `Not quite — the answer is ${item.answers[item.correct]}.`;
+        feedbackMessage = `Not quite — the answer is ${item.answers[item.correct]}.`;
         feedback.classList.add("is-wrong");
       }
+
+      const explanation = document.createElement("span");
+      explanation.className = "feedback-explanation";
+      explanation.textContent = item.explanation;
+      feedback.replaceChildren(document.createTextNode(feedbackMessage), explanation);
 
       progressTrack.setAttribute("aria-valuenow", String(currentQuestion + 1));
       progressFill.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;

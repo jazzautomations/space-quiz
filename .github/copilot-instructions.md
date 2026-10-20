@@ -9,7 +9,7 @@
 ## Architecture
 
 - The entire app lives in `index.html`: semantic markup, embedded CSS, and a vanilla JavaScript quiz controller. Keep it self-contained unless the project requirements explicitly change.
-- The `questions` array is the quiz content source. Each item has a prompt, answer strings, and a zero-based `correct` answer index.
+- The `questions` array is the quiz content source. Each item has a prompt, answer strings, a zero-based `correct` answer index, and a short `explanation` shown after the player answers.
 - Quiz state (`currentQuestion`, `score`, and `answered`) is managed in the inline script. `renderQuestion()` updates the question UI; `chooseAnswer()` handles one selection, score and progress updates, feedback, and advancing; `showResults()` and the restart handler manage the end and replay flows. The personal best is stored in browser `localStorage` when available, with a session-only fallback.
 - CSS custom properties define the light theme and are overridden by `prefers-color-scheme: dark`. Motion is also reduced through `prefers-reduced-motion`, including an immediate final score instead of a count-up.
 
