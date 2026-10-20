@@ -409,6 +409,40 @@
       letter-spacing: 0;
     }
 
+    .personal-best {
+      display: flex;
+      max-width: 280px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 auto 28px;
+      padding: 13px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .personal-best-label {
+      display: block;
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .storage-note {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .personal-best-score {
+      color: var(--accent);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.6rem;
+      font-variant-numeric: tabular-nums;
+    }
+
     .results .primary-button {
       margin-inline: auto;
     }
@@ -530,6 +564,13 @@
         <h1 id="results-title" tabindex="-1">You made it through the galaxy!</h1>
         <p class="result-copy" id="result-copy"></p>
         <p class="final-score"><span class="sr-only">Your score: </span><span id="final-score">0</span><span> / 10</span></p>
+        <div class="personal-best">
+          <div>
+            <span class="personal-best-label">Personal best</span>
+            <span class="storage-note" id="storage-note"></span>
+          </div>
+          <strong class="personal-best-score" id="personal-best-score" aria-live="polite" aria-atomic="true"></strong>
+        </div>
         <button class="primary-button" id="restart-button" type="button">
           <span aria-hidden="true">↻</span> Play again
         </button>
@@ -607,10 +648,31 @@
     const finalScore = document.getElementById("final-score");
     const reaction = document.getElementById("reaction");
     const resultCopy = document.getElementById("result-copy");
+    const personalBestScore = document.getElementById("personal-best-score");
+    const storageNote = document.getElementById("storage-note");
+    const personalBestKey = "orbital-field-notes-personal-best";
 
     let currentQuestion = 0;
     let score = 0;
     let answered = false;
+    let personalBestStorageAvailable = true;
+
+    function loadPersonalBest() {
+      try {
+        const savedScore = window.localStorage.getItem(personalBestKey);
+        if (savedScore === null) return null;
+
+        const parsedScore = Number(savedScore);
+        return Number.isInteger(parsedScore) && parsedScore >= 0 && parsedScore <= questions.length
+          ? parsedScore
+          : null;
+      } catch {
+        personalBestStorageAvailable = false;
+        return null;
+      }
+    }
+
+    let personalBest = loadPersonalBest();
 
     function renderQuestion() {
       const item = questions[currentQuestion];
@@ -670,6 +732,7 @@
       quizScreen.hidden = true;
       resultsScreen.hidden = false;
       animateFinalScore(score);
+      updatePersonalBest(score);
 
       if (score === questions.length) {
         reaction.textContent = "🏆";
@@ -686,6 +749,28 @@
       }
 
       document.getElementById("results-title").focus();
+    }
+
+    function updatePersonalBest(completedScore) {
+      const isNewPersonalBest = personalBest === null || completedScore > personalBest;
+      if (isNewPersonalBest) {
+        personalBest = completedScore;
+
+        if (personalBestStorageAvailable) {
+          try {
+            window.localStorage.setItem(personalBestKey, String(personalBest));
+          } catch {
+            personalBestStorageAvailable = false;
+          }
+        }
+      }
+
+      personalBestScore.textContent = `${personalBest} / ${questions.length}`;
+      if (personalBestStorageAvailable) {
+        storageNote.textContent = isNewPersonalBest ? "New record · saved on this device" : "Saved on this device";
+      } else {
+        storageNote.textContent = "Storage unavailable · record kept for this session";
+      }
     }
 
     function animateFinalScore(target) {
